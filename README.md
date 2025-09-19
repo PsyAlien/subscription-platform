@@ -66,3 +66,25 @@
 // Vid withdraw används call och balance sätts till 0 innan
 (bool sent, ) = service.owner.call{value: amount}("");
 require(sent, "Failed to send Ether");
+
+Skyddar mot reentrancy-problem.
+
+⚠️ Require-satser
+
+Varje kritisk funktion har require-kontroller för att förhindra:
+
+Otillåten åtkomst
+
+Felaktiga betalningar
+
+🧪 Testning
+
+Testat med Hardhat 3 och TypeScript, inklusive edge-cases:
+
+⏳ Förlängning av prenumerationer
+
+🎁 Gåvor till användare med eller utan aktiv prenumeration
+
+❌ Försök från icke-ägare att manipulera tjänster
+
+💸 Uttag av Ether och korrekt uppdatering av balance
