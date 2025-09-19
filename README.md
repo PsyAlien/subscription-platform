@@ -1,57 +1,68 @@
-# Sample Hardhat 3 Beta Project (`mocha` and `ethers`)
+# 🚀 Projekt: SubscriptionPlatform
 
-This project showcases a Hardhat 3 Beta project using `mocha` for tests and the `ethers` library for Ethereum interactions.
+## 📂 Källkod
 
-To learn more about the Hardhat 3 Beta, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3 Beta](https://hardhat.org/hardhat3-beta-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
+- **`SubscriptionPlatform.sol`** – smart kontrakt som hanterar prenumerationstjänster, inklusive:
+  - 📝 Skapande av tjänster
+  - 🔔 Prenumerationer
+  - ⏸ Pausning
+  - 💰 Prisändring
+  - 💸 Uttag
+  - 🎁 Gåvor av prenumerationer
 
-## Project Overview
+- **`SubscriptionPlatform.ts`** – tester för kontraktet som verifierar:
+  - ✅ Funktionalitet
+  - 👑 Ägarskap
+  - 📅 Prenumerationslogik
+  - 🎁 Gåvor
+  - 🔒 Säkerhetskontroller
 
-This example project includes:
+---
 
-- A simple Hardhat configuration file.
-- Foundry-compatible Solidity unit tests.
-- TypeScript integration tests using `mocha` and ethers.js
-- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
+## ⚡ Gasoptimeringar
 
-## Usage
+### 💾 Lagring av endast nödvändiga värden
 
-### Running Tests
+- Vi använder **`structs`** (`SubscriptionService` och `UserSubscription`) med endast de fält som behövs.  
+- Undviker onödiga variabler och temporära arrays.
 
-To run all the tests in the project, execute the following command:
+### 🗂 Mapping istället för arrays
 
-```shell
-npx hardhat test
-```
+- Användning av **`mapping(uint => SubscriptionService)`** och **`mapping(uint => mapping(address => UserSubscription))`** istället för arrays minskar gas vid läsning och skrivning.
 
-You can also selectively run the Solidity or `mocha` tests:
+### 🛠 Uppdatering av state sparsamt
 
-```shell
-npx hardhat test solidity
-npx hardhat test mocha
-```
+- **`balance`** och **`expiry`** uppdateras endast när det behövs.  
+- I **`subscribe`** lägger vi till period istället för att skriva om hela structen.
 
-### Make a deployment to Sepolia
+### ⏸ Pausning via boolean
 
-This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
+- **`paused`** används istället för att ta bort tjänster. En boolean är billigare än att manipulera arrays.
 
-To run the deployment to a local chain:
+---
 
-```shell
-npx hardhat ignition deploy ignition/modules/Counter.ts
-```
+## 🛡 Säkerhetsåtgärder
 
-To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
+### 👑 Modifier `onlyOwner`
 
-You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
+- Säkerställer att endast tjänstens ägare kan:
+  - 💰 Ändra pris
+  - ⏸ Pausa tjänsten
+  - ▶️ Återuppta tjänsten
+  - 💸 Ta ut Ether
 
-To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
+### ⏱ Modifier `serviceActive`
 
-```shell
-npx hardhat keystore set SEPOLIA_PRIVATE_KEY
-```
+- Förhindrar interaktion med tjänster som är pausade, vilket skyddar användare från oönskade transaktioner.
 
-After setting the variable, you can run the deployment with the Sepolia network:
+### 🎁 Kontroller vid gåvor
 
-```shell
-npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
-```
+- **`giftSubscription`** kräver att avsändaren har aktiv prenumeration.  
+- Mottagarens prenumeration förlängs korrekt.
+
+### 💸 Säker Ether-överföring
+
+```solidity
+// Vid withdraw används call och balance sätts till 0 innan
+(bool sent, ) = service.owner.call{value: amount}("");
+require(sent, "Failed to send Ether");
