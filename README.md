@@ -18,6 +18,19 @@
   - 🔒 Säkerhetskontroller
 
 ---
+🧪 Testning
+
+Testat med Hardhat 3 och TypeScript, inklusive edge-cases:
+
+⏳ Förlängning av prenumerationer
+
+🎁 Gåvor till användare med eller utan aktiv prenumeration
+
+❌ Försök från icke-ägare att manipulera tjänster
+
+💸 Uttag av Ether och korrekt uppdatering av balance
+
+
 
 ## ⚡ Gasoptimeringar
 
@@ -77,14 +90,3 @@ Otillåten åtkomst
 
 Felaktiga betalningar
 
-🧪 Testning
-
-Testat med Hardhat 3 och TypeScript, inklusive edge-cases:
-
-⏳ Förlängning av prenumerationer
-
-🎁 Gåvor till användare med eller utan aktiv prenumeration
-
-❌ Försök från icke-ägare att manipulera tjänster
-
-💸 Uttag av Ether och korrekt uppdatering av balance
